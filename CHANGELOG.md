@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1 — 2026-11-14
+
+- docs: switch to GitHub-compatible `$...$` / `$$...$$` math delimiters and add
+  the blank lines display math needs.
+- docs: use `\lbrace`, `\lt`, `\gt` where Markdown escaping would corrupt the
+  TeX, and clarify the EM positivity assumption.
+- docs: spell out that `theta_half` is a finite-sample convention and that the
+  backtest signal, not the realized return, is the causal object.
+
 ## 0.1.0 — 2026-11-14
 
 First public snapshot.
