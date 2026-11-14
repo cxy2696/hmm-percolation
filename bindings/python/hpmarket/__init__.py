@@ -5,7 +5,8 @@ from .core import (
     DiscreteHMM, GaussianHMM, Lattice, Panel, RNG,
     backtest, bond_threshold, config_giant, corr_critical, corr_matrix,
     corr_sweep, er_giant, graph_giant, perc_crossing, perc_spanning_prob,
-    select_ghmm,
+    select_ghmm, vol_target_signal, momentum_signal, state_exposure_signal,
+    multiply_signals, constant_signal,
 )
 
 __all__ = [
@@ -13,6 +14,8 @@ __all__ = [
     "select_ghmm", "corr_matrix", "corr_critical", "corr_sweep", "graph_giant",
     "perc_crossing", "perc_spanning_prob", "er_giant", "config_giant",
     "bond_threshold", "backtest", "SITE", "BOND", "INIT_QUANTILE", "INIT_RANDOM",
+    "vol_target_signal", "momentum_signal", "state_exposure_signal",
+    "multiply_signals", "constant_signal",
 ]
 from ._capi import lib as _lib
 

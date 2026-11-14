@@ -34,7 +34,7 @@ SHARED_LIB := $(BUILD)/libhp.so
 SHARED_LDFLAGS := -shared
 endif
 
-APPS := $(BUILD)/hp_synth $(BUILD)/hp_regime $(BUILD)/hp_connectedness $(BUILD)/hp_perc_lab
+APPS := $(BUILD)/hp_synth $(BUILD)/hp_regime $(BUILD)/hp_connectedness $(BUILD)/hp_perc_lab $(BUILD)/hp_strategies
 EXAMPLES := $(BUILD)/ex_discrete_hmm $(BUILD)/ex_gaussian_hmm $(BUILD)/ex_percolation
 
 TEST_C_OBJS := $(patsubst %.c,$(BUILD)/obj/%.o,$(wildcard tests/test_*.c))

@@ -47,14 +47,15 @@
 策略分两种：
 
 - **只改仓位映射**：`src/app/regime.cpp` 里的 `expo` 是最小改动点。它现在对 $n$ 个状态线性铺开 `0.1..1.0`；改成按状态波动/Sharpe 映射也可以。
-- **新增一个策略模块**：在 `market/` 或 `app/` 加一个函数/类，输入滤波概率、特征、成本，输出目标仓位。不要动 HMM 推理。
+- **加一个通用信号**：在 `src/market/strategy.c` 加纯函数，输入收益/概率，输出仓位；同时在 `include/hp/market/strategy.h` 声明，并加 C/Python/Julia 测试。
+- **加一条对照线**：在 `src/app/strategies.cpp` 的 `specs` 数组里组合已有信号；`hp_strategies` 会自动写 CSV/JSON/report。不要为了一条新线改回测时序。
 
 无论哪种，必须满足：
 
 - 只用 `filtered`，不用 `posterior`；
 - 信号 $t$ 只作用于收益 $t+1$；
-- 加一个“篡改未来收益，比较此前仓位”的测试（参考 `tests/test_app.cpp::test_regime_no_lookahead`）；
-- 在 `metrics.json` 里记录映射参数和成本。
+- 加一个“篡改未来收益，比较此前仓位”的测试（参考 `tests/test_strategy.c::test_signal_no_lookahead` 和 `tests/test_app.cpp::test_strategy_comparison`）；
+- 在 `metrics.json` 或 `summary.json` 里记录映射参数和成本。
 
 如果策略需要多资产，当前 `hp_regime` 的单资产/EW 路径不够用；应该新写一个组合层，而不是在 `run_regime` 里堆分支。
 

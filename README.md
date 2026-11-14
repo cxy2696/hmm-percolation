@@ -15,8 +15,8 @@
 
 - `libhp`：离散 HMM、对角 GMM-HMM、前向/后向、Viterbi、Baum-Welch、BIC 选阶、模型持久化。
 - 渗流：二维键/点渗流、并查集、ER/配置模型、相关矩阵阈值图、有限尺寸标定。
-- 应用层：特征、走步重估、仓位映射、渗流闸门、回测。
-- 4 个命令行工具：`hp_synth`、`hp_regime`、`hp_connectedness`、`hp_perc_lab`。
+- 应用层：特征、走步重估、仓位映射、渗流闸门、回测，以及一组共享同一 OOS 切片的策略对照。
+- 5 个命令行工具：`hp_synth`、`hp_regime`、`hp_connectedness`、`hp_perc_lab`、`hp_strategies`。
 - Python（ctypes）与 Julia（ccall）绑定。
 - 数学笔记：[docs/mathematics.md](docs/mathematics.md)。里面明确区分了“证明了的”“引用文献的”和“只是数值观察的”。
 
@@ -26,7 +26,7 @@
 
 ```bash
 make -j
-make check          # 30 个 C 测试 + 5 个 C++ 测试
+make check          # 35 个 C 测试 + 6 个 C++ 测试
 make shared         # 共享库，Python/Julia 绑定需要
 ```
 
@@ -55,6 +55,9 @@ ctest --test-dir build/cmake --output-on-failure
 ./build/hp_perc_lab --mode scaling --kind bond --sizes 32,64,128,256 \
   --reps 200 --iters 16 --out out/perc_scaling_bond.csv \
   --json out/perc_scaling_bond.json
+
+./build/hp_strategies --csv data/synthetic_panel.csv --states 3 \
+  --seed 42 --outdir out/strategies
 ```
 
 `hp_regime` 会写 `states.csv`、`equity.csv`、`metrics.json`、`report.md` 和模型文件。完整流程用 `./scripts/reproduce.sh`，约 30 秒。
@@ -71,6 +74,8 @@ ctest --test-dir build/cmake --output-on-failure
 
 这些数字只对应一份固定种子的合成数据和一个特定成本假设。它们说明管线能跑、仓位没有偷看未来，不说明策略在真实市场有效。
 
+`hp_strategies` 在同一段样本外上多跑几条不依赖 HMM 的基线：纯波动目标 Sharpe 0.89，60 日动量 0.54，单独渗流闸门 0.97，HMM+闸门 0.88。单独闸门反而最好，说明这份合成数据上收益主要来自“在高相关时减仓”，不是 HMM 的状态判断。完整九条线和解释见 [docs/strategies.md](docs/strategies.md)。
+
 ![状态与闸门](docs/figures/regimes.png)
 
 ## 仓库结构
@@ -84,7 +89,7 @@ bindings/python/   ctypes 绑定
 bindings/julia/    ccall 绑定
 examples/          不带金融假设的最小示例
 tests/             C/C++ 测试
-docs/              数学笔记、设计、扩展、用法、复现、结果
+docs/              数学笔记、设计、策略、扩展、用法、复现、结果
 data/              合成数据
 out/               固定种子生成的参考产物
 ```
@@ -111,7 +116,7 @@ out/               固定种子生成的参考产物
 - 相关阈值图的单调性、因果滤波与回测时序；
 - 明确列出没有证明的结论：二维 $p_c=1/2$、ER/配置模型渐近定理、一般 HMM 可辨识性、EM 全局收敛、有限尺寸标度。
 
-如果只想看“代码里这些公式为什么对”，先读这篇；如果想知道“为什么这样设计”，读 [docs/design.md](docs/design.md)；想扩模型/策略，读 [docs/extending.md](docs/extending.md)。
+如果只想看“代码里这些公式为什么对”，先读这篇；如果想知道“为什么这样设计”，读 [docs/design.md](docs/design.md)；想看策略对照，读 [docs/strategies.md](docs/strategies.md)；想扩模型/策略，读 [docs/extending.md](docs/extending.md)。
 
 ## Python / Julia
 
@@ -129,7 +134,7 @@ julia --startup-file=no bindings/julia/examples/regime_demo.jl
 
 ## 维护
 
-- 版本：0.1.4，API 还可能变。模型文件格式有版本行；升级时不要静默改字段顺序。
+- 版本：0.2.0，API 还可能变。模型文件格式有版本行；升级时不要静默改字段顺序。
 - 数据：`data/` 全部由 `hp_synth` 生成，`data/README.md` 记录了种子和字段。
 - 产物：`out/` 是参考结果，不是必须提交的运行缓存；重新生成用 `scripts/reproduce.sh`。
 - 新结论：要么给证明，要么给文献引用，要么在文档里标成经验观察。三者不要混。

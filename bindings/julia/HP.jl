@@ -16,7 +16,8 @@ export HPError, RNG, uniform, normal, lib_version,
        Lattice, bernoulli!, analyze, cluster_sizes,
        perc_crossing, perc_spanning_prob, er_giant, bond_threshold, config_giant,
        corr_matrix, corr_critical, graph_giant,
-       backtest
+       vol_target_signal, momentum_signal, state_exposure_signal,
+       multiply_signals, constant_signal, backtest
 
 const _ROOT = normpath(joinpath(@__DIR__, "..", ".."))
 const LIBHP = get(ENV, "HP_LIB",
@@ -489,6 +490,22 @@ end
 struct BTOptsC
     cost_bps::Cdouble
     apply_costs::Cint
+    periods_per_year::Cdouble
+end
+
+struct VolTargetOptsC
+    lookback::Csize_t
+    target_vol::Cdouble
+    min_position::Cdouble
+    max_position::Cdouble
+    periods_per_year::Cdouble
+end
+
+struct MomentumOptsC
+    lookback::Csize_t
+    threshold::Cdouble
+    long_position::Cdouble
+    flat_position::Cdouble
 end
 
 struct BTMetricsC
@@ -512,12 +529,13 @@ struct BTResultC
 end
 
 function backtest(asset_ret::AbstractVector{<:Real}, signal::AbstractVector{<:Real};
-                  cost_bps::Real=5.0, apply_costs::Bool=true)
+                  cost_bps::Real=5.0, apply_costs::Bool=true,
+                  periods_per_year::Real=252.0)
     T = length(asset_ret)
     length(signal) == T || error("signal length mismatch")
     r = Vector{Float64}(asset_ret)
     s = Vector{Float64}(signal)
-    opts = BTOptsC(cost_bps, apply_costs ? 1 : 0)
+    opts = BTOptsC(cost_bps, apply_costs ? 1 : 0, periods_per_year)
     res = Ref{BTResultC}()
     m = Ref{BTMetricsC}()
     check(ccall((:hp_backtest, LIBHP), Cint,
@@ -532,6 +550,65 @@ function backtest(asset_ret::AbstractVector{<:Real}, signal::AbstractVector{<:Re
            strategy_ret=copy(unsafe_wrap(Array, res[].strategy_ret, T)),
            position=copy(unsafe_wrap(Array, res[].position, T)))
     ccall((:hp_bt_result_free, LIBHP), Cvoid, (Ref{BTResultC},), res)
+    out
+end
+
+# ----------------------------------------------------------- signal helpers
+function vol_target_signal(asset_ret::AbstractVector{<:Real};
+                           lookback::Integer=20, target_vol::Real=0.10,
+                           min_position::Real=0.0, max_position::Real=1.0,
+                           periods_per_year::Real=252.0)
+    T = length(asset_ret)
+    r = Vector{Float64}(asset_ret)
+    out = Vector{Float64}(undef, T)
+    opts = VolTargetOptsC(lookback, target_vol, min_position, max_position,
+                          periods_per_year)
+    check(ccall((:hp_signal_vol_target, LIBHP), Cint,
+        (Ptr{Cdouble}, Csize_t, Ref{VolTargetOptsC}, Ptr{Cdouble}),
+        r, T, opts, out))
+    out
+end
+
+function momentum_signal(asset_ret::AbstractVector{<:Real};
+                         lookback::Integer=60, threshold::Real=0.0,
+                         long_position::Real=1.0, flat_position::Real=0.0)
+    T = length(asset_ret)
+    r = Vector{Float64}(asset_ret)
+    out = Vector{Float64}(undef, T)
+    opts = MomentumOptsC(lookback, threshold, long_position, flat_position)
+    check(ccall((:hp_signal_momentum, LIBHP), Cint,
+        (Ptr{Cdouble}, Csize_t, Ref{MomentumOptsC}, Ptr{Cdouble}),
+        r, T, opts, out))
+    out
+end
+
+function state_exposure_signal(filtered::AbstractMatrix{<:Real},
+                               exposure::AbstractVector{<:Real})
+    T, n = size(filtered)
+    length(exposure) == n || error("state dimension mismatch")
+    flat = vec(permutedims(Matrix{Float64}(filtered)))
+    expo = Vector{Float64}(exposure)
+    out = Vector{Float64}(undef, T)
+    check(ccall((:hp_signal_state_exposure, LIBHP), Cint,
+        (Ptr{Cdouble}, Csize_t, Csize_t, Ptr{Cdouble}, Ptr{Cdouble}),
+        flat, T, n, expo, out))
+    out
+end
+
+function multiply_signals(a::AbstractVector{<:Real}, b::AbstractVector{<:Real})
+    length(a) == length(b) || error("signal length mismatch")
+    T = length(a)
+    av = Vector{Float64}(a); bv = Vector{Float64}(b)
+    out = Vector{Float64}(undef, T)
+    check(ccall((:hp_signal_multiply, LIBHP), Cint,
+        (Ptr{Cdouble}, Ptr{Cdouble}, Csize_t, Ptr{Cdouble}), av, bv, T, out))
+    out
+end
+
+function constant_signal(n::Integer, position::Real=1.0)
+    out = Vector{Float64}(undef, n)
+    check(ccall((:hp_signal_constant, LIBHP), Cint,
+        (Csize_t, Cdouble, Ptr{Cdouble}), n, position, out))
     out
 end
 

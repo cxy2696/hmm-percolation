@@ -65,5 +65,17 @@ using .HP
         bt = backtest(ret, sig; cost_bps=0.0)
         @test isapprox(bt.equity[6], 1.01; atol=1e-12)
         @test isapprox(bt.total_return, 0.01; atol=1e-12)
+        bt2 = backtest([0.0, 0.01], [1.0, 1.0]; cost_bps=0.0, periods_per_year=1)
+        @test isapprox(bt2.cagr, 0.01; atol=1e-12)
+    end
+
+    @testset "signal helpers" begin
+        pos = vol_target_signal([0.001 for _ in 1:10]; lookback=4)
+        @test isnan(pos[1])
+        @test isapprox(pos[4], 1.0; atol=1e-12)
+        @test momentum_signal([0.01 for _ in 1:5]; lookback=5)[5] == 1.0
+        @test state_exposure_signal([1.0 0.0; 0.5 0.5; 0.0 1.0], [0.1, 1.0])[2] ≈ 0.55
+        @test isnan(multiply_signals([1.0, NaN], [0.5, 0.5])[2])
+        @test constant_signal(3, 0.3) == [0.3, 0.3, 0.3]
     end
 end

@@ -131,6 +131,7 @@ hp_panel_ew_returns(p, ew);
 hp_bt_opts bo;
 hp_bt_opts_default(&bo);
 bo.cost_bps = 5.0;
+bo.periods_per_year = 252.0;   /* 日频；周频用 52，月频用 12 */
 
 hp_bt_result res;
 hp_bt_metrics met;
@@ -141,7 +142,28 @@ hp_panel_free(p);
 free(ew);
 ```
 
-回测约定：`signal[t]` 在 t 日收盘确定，作用于 `ret[t+1]`。`hp_backtest` 自动检查 `ret[1..]` 有限，不检查 `ret[0]`。
+回测约定：`signal[t]` 在 t 日收盘确定，作用于 `ret[t+1]`。`hp_backtest` 自动检查 `ret[1..]` 有限，不检查 `ret[0]`。`periods_per_year` 只影响 CAGR/波动/Sharpe 的年化，不改变逐日净值。
+
+### 2.5 策略信号
+
+```c
+hp_vol_target_opts vo;
+hp_vol_target_opts_default(&vo);
+vo.lookback = 20;
+vo.target_vol = 0.10;
+hp_signal_vol_target(ret, T, &vo, pos);  /* 不足 lookback 的行为 NAN */
+
+hp_momentum_opts mo;
+hp_momentum_opts_default(&mo);
+mo.lookback = 60;
+hp_signal_momentum(ret, T, &mo, pos);
+
+hp_signal_state_exposure(filtered, T, n_states, exposure, pos);
+hp_signal_multiply(hmm_pos, vol_pos, T, combined);
+hp_signal_constant(T, 0.5, pos);
+```
+
+这些函数只做信号，不做回测；NaN 表示“历史不足”，`hp_backtest` 不接受 NaN，所以在应用层显式填 0 或空仓。`hp_signal_state_exposure` 的 `filtered` 是 `T*n_states` 行主序。
 
 ## 3. CLI
 
@@ -212,6 +234,24 @@ free(ew);
 
 共用的 `--out`、`--json`、`--periodic`、`--kind` 见上表；完整解析逻辑在 `apps/hp_perc_lab.cpp`，没有额外的 `--help`。
 
+### 3.5 `hp_strategies`
+
+| 参数 | 默认 | 说明 |
+| --- | --- | --- |
+| `--csv` | 必填 | 面板 |
+| `--states` | 3 | 0 = BIC |
+| `--train-frac` / `--refit` | 0.6 / 250 | 与 `hp_regime` 相同 |
+| `--cost-bps` | 5 | 换手成本 |
+| `--no-perc` | off | 关闭 HMM 的渗流闸门 |
+| `--constant` | 0.5 | 固定仓位基线 |
+| `--vol-lookback` / `--vol-target` | 20 / 0.10 | 波动目标 |
+| `--min-position` / `--max-position` | 0 / 1 | 仓位上下限 |
+| `--momentum-lookback` | 60 | 动量窗口 |
+| `--momentum-threshold` | 0.0 | 动量阈值 |
+| `--outdir` | `out/strategies` | 输出目录 |
+
+输出 `strategies.csv`（指标）、`equity.csv`、`positions.csv`、`summary.json`、`report.md`。所有行共享同一个 OOS 切片和成本，按 `signal[t] -> ret[t+1]` 执行。
+
 ## 4. 模型文件
 
 离散：
@@ -263,6 +303,9 @@ print(lat.analyze())
 
 crit = hp.corr_critical(hp.corr_matrix(returns_window))
 print(crit["theta_half"])
+
+pos = hp.vol_target_signal(returns, lookback=20, target_vol=0.10)
+bt = hp.backtest(returns, pos, cost_bps=5.0, periods_per_year=252)
 ```
 
 对象需要 `close()`；也支持 `with`。`HPMARKET_LIB` 可覆盖库路径；`hpmarket.__version__` 从 C 的 `hp_version()` 读取。
@@ -281,6 +324,9 @@ path, lp = viterbi(m, x)          # 0-based states
 lat = Lattice(64, :bond)
 bernoulli!(lat, 0.55, RNG(1))
 println(analyze(lat))
+
+pos = vol_target_signal(returns; lookback=20, target_vol=0.10)
+bt = backtest(returns, pos; cost_bps=5.0, periods_per_year=252)
 ```
 
 `HP_LIB` 可覆盖库路径；`HP.lib_version()` 从 C 读取版本。Julia 的 `params(m).mean` 是 `(states, mix, dim)`；`state_mean(m, j)` 的 `j` 从 0 开始。

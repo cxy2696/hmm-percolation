@@ -24,6 +24,7 @@
 #include "hp/market/synth.h"
 #include "hp/market/features.h"
 #include "hp/market/backtest.h"
+#include "hp/market/strategy.h"
 
 #include "hp/cross/state_graph.h"
 

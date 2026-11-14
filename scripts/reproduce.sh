@@ -32,6 +32,10 @@ echo "== regime variants =="
 ./build/hp_regime --csv data/synthetic_panel.csv --states 3 --conn-window 30 \
   --outdir out/regime_w30
 
+echo "== strategy comparison =="
+./build/hp_strategies --csv data/synthetic_panel.csv --states 3 \
+  --seed 42 --outdir out/strategies
+
 echo "== percolation lab =="
 ./build/hp_perc_lab --mode scan --kind bond --L 128 --pmin 0.35 --pmax 0.65 \
   --steps 31 --reps 200 --out out/perc_scan_bond.csv
@@ -76,6 +80,14 @@ for d in ["out/regime", "out/regime_s2", "out/regime_s0"]:
           f"hmm Sharpe={m['backtest']['hmm']['sharpe']:.2f} "
           f"gate Sharpe={m['backtest']['hmm_perc']['sharpe']:.2f} "
           f"MDD={m['backtest']['hmm_perc']['max_drawdown']*100:.1f}%")
+p = Path("out/strategies/summary.json")
+if p.exists():
+    s = json.loads(p.read_text())
+    print(f"strategies: {s['strategy_count']} rules, {s['oos_days']} signal rows")
+    for row in s["strategies"]:
+        m = row["metrics"]
+        print(f"  {row['name']:<13} total={m['total_return']*100:6.2f}% "
+              f"Sharpe={m['sharpe']:.2f} MDD={m['max_drawdown']*100:6.2f}%")
 for k in ["bond", "site"]:
     p = Path(f"out/perc_scaling_{k}.json")
     if p.exists():

@@ -29,11 +29,12 @@ C11 + libm，C++17 + 标准库。没有 BLAS、Eigen、numpy、网络依赖。�
 2. 生成 `data/synthetic_panel.csv` 与 truth；
 3. 跑 connectedness；
 4. 跑 3 / 2 / BIC / 无闸门 / 30 日窗口五组 regime；
-5. 跑渗流 scan、键/点 scaling、meanfield；
-6. Python 测试；
-7. Julia 测试（`julia` 可执行时）；
-8. 画图（如果 `build/venv` 存在）；
-9. 打印摘要。
+5. 跑策略对照；
+6. 跑渗流 scan、键/点 scaling、meanfield；
+7. Python 测试；
+8. Julia 测试（`julia` 可执行时）；
+9. 画图（如果 `build/venv` 存在）；
+10. 打印摘要。
 
 本机约 30 秒。
 
@@ -50,7 +51,7 @@ make check
 期望：
 
 ```
-30 passed, 0 failed      # C
+35 passed, 0 failed      # C
 5 passed, 0 failed       # C++ 应用层
 ```
 
@@ -142,7 +143,27 @@ HMM+perc: 60.65%  Sharpe 0.88  MDD -16.90%
 | 点渗流外推 | 0.5948（R²=0.9705） |
 | ER c=2 巨分量 | 0.796812 |
 
-### 3.6 Python / Julia
+### 3.6 策略对照
+
+```bash
+./build/hp_strategies --csv data/synthetic_panel.csv --states 3 \
+  --seed 42 --outdir out/strategies
+```
+
+检查点（固定种子、5 bps）：
+
+| 策略 | 总收益 | Sharpe | 最大回撤 |
+| --- | ---: | ---: | ---: |
+| buy_hold | 92.77% | 0.85 | -33.83% |
+| vol_target | 56.89% | 0.89 | -17.96% |
+| momentum | 37.01% | 0.54 | -24.60% |
+| gate_only | 102.59% | 0.97 | -25.64% |
+| hmm_gate | 60.65% | 0.88 | -16.90% |
+| hmm_vol_gate | 36.27% | 0.89 | -9.81% |
+
+完整九条线在 `out/strategies/strategies.csv`，解释见 [strategies.md](strategies.md)。注意 `signals` 有 1192 行，但有效 P&L 是 1191 天；第一行是首次决策日，不产生收益。
+
+### 3.7 Python / Julia
 
 ```bash
 make shared
@@ -153,7 +174,7 @@ julia --startup-file=no bindings/julia/test/runtests.jl
 julia --startup-file=no bindings/julia/examples/regime_demo.jl
 ```
 
-Python 12 项、Julia 22 项。Python 会复算 C++ 的 `model_train.txt` 对数似然（容差 2e-5）和最后一个窗口的 `theta_c`（容差 1e-10）。
+Python 16 项、Julia 29 项。Python 会复算 C++ 的 `model_train.txt` 对数似然（容差 2e-5）和最后一个窗口的 `theta_c`（容差 1e-10）。
 
 如果 juliaup 启动器报 `Could not create lockfile`，给它一个可写 HOME：
 
@@ -162,7 +183,7 @@ mkdir -p /tmp/hp-julia-home
 HOME=/tmp/hp-julia-home julia --startup-file=no bindings/julia/test/runtests.jl
 ```
 
-### 3.7 图
+### 3.8 图
 
 ```bash
 python3 -m venv build/venv

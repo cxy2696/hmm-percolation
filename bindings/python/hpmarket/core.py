@@ -25,6 +25,8 @@ __all__ = [
     "corr_matrix", "corr_critical", "corr_sweep", "graph_giant",
     "perc_crossing", "perc_spanning_prob", "er_giant", "config_giant",
     "bond_threshold", "backtest", "select_ghmm",
+    "vol_target_signal", "momentum_signal", "state_exposure_signal",
+    "multiply_signals", "constant_signal",
 ]
 
 
@@ -570,14 +572,81 @@ def graph_giant(corr, theta: float) -> dict:
         lib.hp_graph_free(g)
 
 
+def vol_target_signal(asset_ret: Sequence[float], *, lookback: int = 20,
+                      target_vol: float = 0.10, min_position: float = 0.0,
+                      max_position: float = 1.0,
+                      periods_per_year: float = 252.0) -> list[float]:
+    """Causal inverse-vol position.  NaN before enough history."""
+    ret = _dvec(asset_ret)
+    T = len(asset_ret)
+    out = (C.c_double * T)()
+    opts = capi.VolTargetOpts()
+    lib.hp_vol_target_opts_default(C.byref(opts))
+    opts.lookback = int(lookback)
+    opts.target_vol = float(target_vol)
+    opts.min_position = float(min_position)
+    opts.max_position = float(max_position)
+    opts.periods_per_year = float(periods_per_year)
+    check(lib.hp_signal_vol_target(ret, T, C.byref(opts), out))
+    return _read(out, T)
+
+
+def momentum_signal(asset_ret: Sequence[float], *, lookback: int = 60,
+                    threshold: float = 0.0, long_position: float = 1.0,
+                    flat_position: float = 0.0) -> list[float]:
+    """Long if trailing cumulative log return > threshold, else flat."""
+    ret = _dvec(asset_ret)
+    T = len(asset_ret)
+    out = (C.c_double * T)()
+    opts = capi.MomentumOpts()
+    lib.hp_momentum_opts_default(C.byref(opts))
+    opts.lookback = int(lookback)
+    opts.threshold = float(threshold)
+    opts.long_position = float(long_position)
+    opts.flat_position = float(flat_position)
+    check(lib.hp_signal_momentum(ret, T, C.byref(opts), out))
+    return _read(out, T)
+
+
+def state_exposure_signal(filtered: Sequence[Sequence[float]], n_states: int,
+                          exposure: Sequence[float]) -> list[float]:
+    flat, T, d = _matrix(filtered)
+    if d != int(n_states) or len(exposure) != int(n_states):
+        raise ValueError("state dimension mismatch")
+    filt = _dvec(flat)
+    expo = _dvec(exposure)
+    out = (C.c_double * T)()
+    check(lib.hp_signal_state_exposure(filt, T, int(n_states), expo, out))
+    return _read(out, T)
+
+
+def multiply_signals(a: Sequence[float], b: Sequence[float]) -> list[float]:
+    if len(a) != len(b):
+        raise ValueError("signal length mismatch")
+    T = len(a)
+    av, bv = _dvec(a), _dvec(b)
+    out = (C.c_double * T)()
+    check(lib.hp_signal_multiply(av, bv, T, out))
+    return _read(out, T)
+
+
+def constant_signal(n: int, position: float = 1.0) -> list[float]:
+    if n <= 0:
+        raise ValueError("n must be positive")
+    out = (C.c_double * n)()
+    check(lib.hp_signal_constant(n, float(position), out))
+    return _read(out, n)
+
+
 def backtest(asset_ret: Sequence[float], signal: Sequence[float], *,
-             cost_bps: float = 5.0, apply_costs: bool = True) -> dict:
+             cost_bps: float = 5.0, apply_costs: bool = True,
+             periods_per_year: float = 252.0) -> dict:
     T = len(asset_ret)
     if len(signal) != T:
         raise ValueError("signal length mismatch")
     ret = _dvec(asset_ret)
     sig = _dvec(signal)
-    opts = capi.BTOpts(cost_bps, 1 if apply_costs else 0)
+    opts = capi.BTOpts(cost_bps, 1 if apply_costs else 0, periods_per_year)
     res, m = capi.BTResult(), capi.BTMetrics()
     check(lib.hp_backtest(ret, T, sig, C.byref(opts), C.byref(res), C.byref(m)))
     try:

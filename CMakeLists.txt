@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(hp VERSION 0.1.4 LANGUAGES C CXX)
+project(hp VERSION 0.2.0 LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -23,7 +23,7 @@ add_library(hpapp STATIC ${HP_APP_SOURCES})
 target_include_directories(hpapp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(hpapp PUBLIC hp)
 
-foreach(app hp_synth hp_regime hp_connectedness hp_perc_lab)
+foreach(app hp_synth hp_regime hp_connectedness hp_perc_lab hp_strategies)
     add_executable(${app} apps/${app}.cpp)
     target_link_libraries(${app} PRIVATE hpapp)
 endforeach()

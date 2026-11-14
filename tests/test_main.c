@@ -45,6 +45,7 @@ void hp_test_hmm_register(void);
 void hp_test_ghmm_register(void);
 void hp_test_perc_register(void);
 void hp_test_market_register(void);
+void hp_test_strategy_register(void);
 
 int main(int argc, char **argv) {
     mkdir("build", 0755);
@@ -54,5 +55,6 @@ int main(int argc, char **argv) {
     hp_test_ghmm_register();
     hp_test_perc_register();
     hp_test_market_register();
+    hp_test_strategy_register();
     return hp_test_run_all(argc > 1 ? argv[1] : NULL);
 }

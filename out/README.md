@@ -12,6 +12,7 @@ limitations, see `docs/results.md`.
 - `regime_s2/`, `regime_s0/`, `regime_noperc/`, `regime_w30/` — variants used
   for the comparison tables.
 - `connectedness/` — rolling correlation percolation.
+- `strategies/` — eight position rules on the same OOS slice.
 - `perc_*` — lattice scans, finite-size fits, mean-field table.
 
 To rebuild:

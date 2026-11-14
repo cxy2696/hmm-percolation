@@ -9,6 +9,7 @@ void hp_bt_opts_default(hp_bt_opts *opts) {
     if (!opts) return;
     opts->cost_bps = 5.0;
     opts->apply_costs = 1;
+    opts->periods_per_year = 252.0;
 }
 
 void hp_bt_result_free(hp_bt_result *r) {
@@ -30,7 +31,9 @@ hp_status hp_backtest(const double *asset_ret, size_t T, const double *signal,
         hp_bt_opts_default(&def);
         opts = &def;
     }
-    if (!(opts->cost_bps >= 0.0)) return HP_ERR_INVALID;
+    if (!isfinite(opts->cost_bps) || opts->cost_bps < 0.0 ||
+        !isfinite(opts->periods_per_year) || !(opts->periods_per_year > 0.0))
+        return HP_ERR_INVALID;
     for (size_t t = 0; t < T; ++t)
         if (!isfinite(signal[t])) return HP_ERR_DOMAIN;
     for (size_t t = 1; t < T; ++t)
@@ -64,13 +67,14 @@ hp_status hp_backtest(const double *asset_ret, size_t T, const double *signal,
         double mean = hp_mean(sr, n);
         double sd = hp_sd(sr, n);
         double total = result->equity[T - 1] - 1.0;
+        const double ppy = opts->periods_per_year;
         double cagr = result->equity[T - 1] > 0.0
-                          ? pow(result->equity[T - 1], 252.0 / (double)n) - 1.0
+                          ? pow(result->equity[T - 1], ppy / (double)n) - 1.0
                           : -1.0;
         metrics->total_return = total;
         metrics->cagr = cagr;
-        metrics->ann_vol = sd * sqrt(252.0);
-        metrics->sharpe = (sd > 0.0) ? mean / sd * sqrt(252.0) : NAN;
+        metrics->ann_vol = sd * sqrt(ppy);
+        metrics->sharpe = (sd > 0.0) ? mean / sd * sqrt(ppy) : NAN;
         metrics->max_drawdown = max_dd;
         metrics->calmar = max_dd < 0.0 ? cagr / fabs(max_dd) : NAN;
         double turn = 0.0, expo = 0.0;

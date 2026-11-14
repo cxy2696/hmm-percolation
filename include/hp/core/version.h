@@ -11,9 +11,9 @@ extern "C" {
 #endif
 
 #define HP_VERSION_MAJOR 0
-#define HP_VERSION_MINOR 1
-#define HP_VERSION_PATCH 4
-#define HP_VERSION_STRING "0.1.4"
+#define HP_VERSION_MINOR 2
+#define HP_VERSION_PATCH 0
+#define HP_VERSION_STRING "0.2.0"
 
 const char *hp_version(void);
 

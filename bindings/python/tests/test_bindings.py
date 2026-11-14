@@ -125,6 +125,36 @@ class TestCorrBacktest(unittest.TestCase):
         self.assertAlmostEqual(no_future["equity"][7], 1.0, places=12)
 
 
+class TestStrategies(unittest.TestCase):
+    def test_vol_target(self):
+        pos = hp.vol_target_signal([0.001] * 10, lookback=4)
+        self.assertTrue(math.isnan(pos[0]))
+        self.assertAlmostEqual(pos[3], 1.0, places=12)
+        alt = [0.01 if t % 2 == 0 else -0.01 for t in range(10)]
+        pos = hp.vol_target_signal(alt, lookback=4)
+        self.assertGreater(pos[3], 0.5)
+        self.assertLess(pos[3], 0.8)
+
+    def test_momentum(self):
+        ret = [0.01] * 5 + [-0.01] * 5
+        pos = hp.momentum_signal(ret, lookback=5)
+        self.assertTrue(math.isnan(pos[3]))
+        self.assertEqual(pos[4], 1.0)
+        self.assertEqual(pos[9], 0.0)
+
+    def test_exposure_and_multiply(self):
+        pos = hp.state_exposure_signal([[1, 0], [0.5, 0.5], [0, 1]], 2, [0.1, 1.0])
+        self.assertAlmostEqual(pos[1], 0.55, places=12)
+        out = hp.multiply_signals([1.0, 0.5, float("nan")], [0.5, 0.5, 1.0])
+        self.assertAlmostEqual(out[1], 0.25, places=12)
+        self.assertTrue(math.isnan(out[2]))
+
+    def test_backtest_periods(self):
+        out = hp.backtest([0.0, 0.01], [1, 1], apply_costs=False,
+                          periods_per_year=1)
+        self.assertAlmostEqual(out["cagr"], 0.01, places=6)
+
+
 class TestAgainstCpp(unittest.TestCase):
     """Recompute the C++ pipeline's training likelihood from Python."""
 

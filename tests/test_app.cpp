@@ -11,6 +11,7 @@
 #include "hp/app/connectedness.hpp"
 #include "hp/app/regime.hpp"
 #include "hp/app/report.hpp"
+#include "hp/app/strategies.hpp"
 #include "hp/app/util.hpp"
 #include "hp/core/io.h"
 #include "hp_test.h"
@@ -129,6 +130,39 @@ HP_TEST(test_regime_deterministic) {
     return 0;
 }
 
+HP_TEST(test_strategy_comparison) {
+    const std::string path = "data/synthetic_panel.csv";
+    if (!std::filesystem::exists(path)) return 0;
+    PanelPtr p = load_panel(path);
+    RegimeConfig cfg;
+    cfg.states = 2;
+    cfg.max_iter = 60;
+    cfg.restarts = 2;
+    cfg.refit_every = 250;
+    cfg.use_percolation = false;
+    RegimeResult r = run_regime(p.get(), cfg);
+
+    StrategyConfig sc;
+    sc.cost_bps = cfg.cost_bps;
+    StrategyComparison c = compare_strategies(r, sc);
+    HP_CHECK(c.rows.size() == 9);
+    HP_CHECK(c.dates.size() == r.bt_dates.size());
+    HP_CHECK(c.rows[0].name == "buy_hold");
+    for (const StrategyResult &row : c.rows) {
+        HP_CHECK(row.metrics.n_days == r.bt_hmm.n_days);
+        HP_CHECK(row.equity.size() == r.bt_ret.size());
+        for (double x : row.position)
+            HP_CHECK(std::isfinite(x) && x >= 0.0 && x <= 1.0);
+    }
+    HP_CHECK_NEAR(c.rows[0].metrics.total_return, r.bt_bh.total_return, 1e-12);
+    HP_CHECK_NEAR(c.rows[6].metrics.total_return, r.bt_comb.total_return, 1e-12);
+
+    StrategyComparison d = compare_strategies(r, sc);
+    for (size_t k = 0; k < c.rows.size(); ++k)
+        HP_CHECK_NEAR(c.rows[k].metrics.total_return, d.rows[k].metrics.total_return, 1e-12);
+    return 0;
+}
+
 int main() {
     struct Entry {
         const char *name;
@@ -139,6 +173,7 @@ int main() {
         {"test_connectedness_deterministic", test_connectedness_deterministic},
         {"test_regime_no_lookahead", test_regime_no_lookahead},
         {"test_regime_deterministic", test_regime_deterministic},
+        {"test_strategy_comparison", test_strategy_comparison},
     };
     int failed = 0;
     for (const auto &t : tests) {

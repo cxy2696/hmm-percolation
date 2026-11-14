@@ -15,7 +15,7 @@ __all__ = [
     "HPError", "lib", "check",
     "RNG", "HMM", "GHMM", "Panel",
     "HMMTrainOpts", "HMMReport", "GHMMTrainOpts", "GHMMReport", "GHMMModelInfo",
-    "BTOpts", "BTMetrics", "BTResult",
+    "BTOpts", "BTMetrics", "BTResult", "VolTargetOpts", "MomentumOpts",
     "Lattice", "LatticeStats", "PercExp", "CorrCritical", "PercPoint",
     "Components",
 ]
@@ -164,7 +164,27 @@ class GHMMModelInfo(C.Structure):
 
 
 class BTOpts(C.Structure):
-    _fields_ = [("cost_bps", C.c_double), ("apply_costs", C.c_int)]
+    _fields_ = [("cost_bps", C.c_double), ("apply_costs", C.c_int),
+                ("periods_per_year", C.c_double)]
+
+
+class VolTargetOpts(C.Structure):
+    _fields_ = [
+        ("lookback", C.c_size_t),
+        ("target_vol", C.c_double),
+        ("min_position", C.c_double),
+        ("max_position", C.c_double),
+        ("periods_per_year", C.c_double),
+    ]
+
+
+class MomentumOpts(C.Structure):
+    _fields_ = [
+        ("lookback", C.c_size_t),
+        ("threshold", C.c_double),
+        ("long_position", C.c_double),
+        ("flat_position", C.c_double),
+    ]
 
 
 class BTMetrics(C.Structure):
@@ -318,6 +338,16 @@ _proto("hp_backtest", C.c_int,
        [c_double_p, C.c_size_t, c_double_p, C.POINTER(BTOpts),
         C.POINTER(BTResult), C.POINTER(BTMetrics)])
 _proto("hp_bt_result_free", None, [C.POINTER(BTResult)])
+_proto("hp_vol_target_opts_default", None, [C.POINTER(VolTargetOpts)])
+_proto("hp_signal_vol_target", C.c_int,
+       [c_double_p, C.c_size_t, C.POINTER(VolTargetOpts), c_double_p])
+_proto("hp_momentum_opts_default", None, [C.POINTER(MomentumOpts)])
+_proto("hp_signal_momentum", C.c_int,
+       [c_double_p, C.c_size_t, C.POINTER(MomentumOpts), c_double_p])
+_proto("hp_signal_state_exposure", C.c_int,
+       [c_double_p, C.c_size_t, C.c_size_t, c_double_p, c_double_p])
+_proto("hp_signal_multiply", C.c_int, [c_double_p, c_double_p, C.c_size_t, c_double_p])
+_proto("hp_signal_constant", C.c_int, [C.c_size_t, C.c_double, c_double_p])
 
 # Percolation
 _proto("hp_lattice_new", C.POINTER(Lattice), [C.c_int, C.c_int, C.c_int])

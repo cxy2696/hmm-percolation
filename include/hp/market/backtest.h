@@ -18,6 +18,8 @@ extern "C" {
 typedef struct {
     double cost_bps;
     int apply_costs;
+    /* Periods per year used for CAGR/vol/Sharpe.  Default 252 (daily). */
+    double periods_per_year;
 } hp_bt_opts;
 
 void hp_bt_opts_default(hp_bt_opts *opts);

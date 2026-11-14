@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0 — 2026-11-14
+
+- market: add causal signal helpers (`hp_signal_vol_target`,
+  `hp_signal_momentum`, `hp_signal_state_exposure`, `hp_signal_multiply`,
+  `hp_signal_constant`) and make the backtest annualisation configurable.
+- app: add `hp_strategies`, which compares nine position rules on one OOS
+  slice with the same costs and execution lag.
+- bindings: expose the signal helpers in Python and Julia; `hp_bt_opts` gained
+  a trailing `periods_per_year` field, so old binaries must be rebuilt.
+- fix: `hp_signal_momentum` no longer lets a leading NaN poison the whole
+  series.
+- docs: add `docs/strategies.md`, update results/usage/reproduction, and add a
+  before/after table for the naive baselines.
+- tests: 35 C, 6 C++, 16 Python, 29 Julia.
+
 ## 0.1.4 — 2026-11-14
 
 - docs: fix an inline-math boundary in `docs/extending.md`; GitHub requires
