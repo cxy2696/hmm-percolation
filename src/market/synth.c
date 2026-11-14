@@ -94,14 +94,14 @@ hp_synth_data *hp_synth_generate(const hp_synth_opts *opts) {
     out->factor_beta = hp_doubles(N);
 
     for (size_t j = 0; j < N; ++j) {
-        char name[16];
+        char name[32];
         snprintf(name, sizeof(name), "A%zu", j + 1);
         out->panel->symbols[j] = hp_strdup(name);
     }
 
     int y = 2012, m = 1, d = 2, dow = 1; /* Monday */
     for (size_t t = 0; t < T; ++t) {
-        char buf[16];
+        char buf[32];
         snprintf(buf, sizeof(buf), "%04d-%02d-%02d", y, m, d);
         out->panel->dates[t] = hp_strdup(buf);
         next_weekday(&y, &m, &d, &dow);
