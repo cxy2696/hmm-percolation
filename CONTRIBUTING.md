@@ -45,15 +45,3 @@ finite-size estimates and backtest numbers are not theorems.
   update `docs/results.md` and the checkpoints in `docs/reproduction.md`.
 - Never commit personal paths, tokens, or machine-specific output.
 
-## Commits
-
-Small, focused commits are preferred. A useful pattern:
-
-```
-core: explain why...
-hmm: fix ...
-docs: add proof of ...
-```
-
-Open an issue before a large refactor. For a new algorithm, add a failing test
-first and state which part is proved, cited, or empirical.
