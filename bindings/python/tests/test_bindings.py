@@ -16,6 +16,11 @@ import hpmarket as hp
 ROOT = Path(__file__).resolve().parents[3]
 
 
+class TestVersion(unittest.TestCase):
+    def test_version_format(self):
+        self.assertRegex(hp.__version__, r"^\d+\.\d+\.\d+$")
+
+
 class TestDiscreteHMM(unittest.TestCase):
     def test_uniform_likelihood(self):
         h = hp.DiscreteHMM(2, 2)

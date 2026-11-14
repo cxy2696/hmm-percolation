@@ -1,17 +1,15 @@
 /* HP · correlation-threshold graphs and their percolation sweep.
  *
- * For a cross-section of N assets we build a graph whose edge (i,j) exists
- * when |corr(i,j)| >= theta.  Lowering theta adds edges, so the giant
- * component appears at a critical threshold theta_c.  Two readings are
- * produced:
+ * For N variables we build a graph whose edge (i,j) exists when
+ * |corr(i,j)| >= theta.  Lowering theta adds edges, so the giant component
+ * appears at a critical threshold theta_c.  Two readings are produced:
  *
  *   theta_c    argmax of the percolation susceptibility chi(theta), which is
  *              the finite-size estimate of the transition;
  *   theta_half threshold where the giant fraction crosses 0.5.
  *
- * A high theta_c means even strongly correlated pairs keep the market
- * connected -- the cross-section is fragile.  This is a structural diagnostic,
- * not a forecast of direction.
+ * A high theta_c means even strongly correlated pairs keep the graph
+ * connected.  This is a structural diagnostic, not a forecast of direction.
  */
 #ifndef HP_PERC_CORR_H
 #define HP_PERC_CORR_H

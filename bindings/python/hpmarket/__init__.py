@@ -14,4 +14,6 @@ __all__ = [
     "perc_crossing", "perc_spanning_prob", "er_giant", "config_giant",
     "bond_threshold", "backtest", "SITE", "BOND", "INIT_QUANTILE", "INIT_RANDOM",
 ]
-__version__ = "1.0.0"
+from ._capi import lib as _lib
+
+__version__ = _lib.hp_version().decode("utf-8")

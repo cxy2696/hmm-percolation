@@ -1,7 +1,7 @@
 /* HP · minimal CSV reader/writer.
  *
  * Scope on purpose: comma-separated, optional UTF-8 BOM, LF/CRLF, no embedded
- * newlines or quotes.  Market panels and experiment tables fit that shape.
+ * newlines or quotes.  Data panels and experiment tables fit that shape.
  * Empty cells and NA/NaN/nan become NAN when parsed as numbers.
  */
 #ifndef HP_CORE_CSV_H

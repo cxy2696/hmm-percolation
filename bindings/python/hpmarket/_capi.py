@@ -264,6 +264,7 @@ def _proto(name, restype, argtypes):
 
 
 _proto("hp_status_message", C.c_char_p, [C.c_int])
+_proto("hp_version", C.c_char_p, [])
 _proto("hp_free", None, [C.c_void_p])
 
 # RNG

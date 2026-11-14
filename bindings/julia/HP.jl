@@ -10,7 +10,7 @@ ordinary Julia matrices/vectors (states x time for posteriors).
 """
 module HP
 
-export HPError, RNG, uniform, normal,
+export HPError, RNG, uniform, normal, lib_version,
        DiscreteHMM, GaussianHMM, train!, forward, posterior, filtered, viterbi,
        save_model, load_hmm, load_ghmm, params, state_mean,
        Lattice, bernoulli!, analyze, cluster_sizes,
@@ -35,6 +35,8 @@ function check(st::Integer)
     msg = unsafe_string(ccall((:hp_status_message, LIBHP), Cstring, (Cint,), st))
     throw(HPError(Cint(st), msg))
 end
+
+lib_version() = unsafe_string(ccall((:hp_version, LIBHP), Cstring, ()))
 
 # ------------------------------------------------------------------ RNG
 mutable struct RNG

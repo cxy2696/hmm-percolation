@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.3 — 2026-11-14
+
+- core: add `hp_version()` / `HP_VERSION_*` so bindings do not duplicate the
+  library version.
+- bindings: Python `hpmarket.__version__` and Julia `HP.lib_version()` now read
+  the runtime version from C.
+- docs: add `docs/extending.md` with the extension seams and compatibility
+  rules.
+
 ## 0.1.2 — 2026-11-14
 
 - docs: add DOI / publisher / repository links for every cited work, plus a

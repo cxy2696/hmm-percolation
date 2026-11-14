@@ -24,6 +24,8 @@ ctest --test-dir build/cmake --output-on-failure
 
 ```c
 #include "hp/hp.h"
+
+printf("%s\n", hp_version());   /* HP_VERSION_STRING */
 ```
 
 ### 2.1 离散 HMM
@@ -263,7 +265,7 @@ crit = hp.corr_critical(hp.corr_matrix(returns_window))
 print(crit["theta_half"])
 ```
 
-对象需要 `close()`；也支持 `with`。`HPMARKET_LIB` 可覆盖库路径。
+对象需要 `close()`；也支持 `with`。`HPMARKET_LIB` 可覆盖库路径；`hpmarket.__version__` 从 C 的 `hp_version()` 读取。
 
 ## 6. Julia
 
@@ -281,7 +283,7 @@ bernoulli!(lat, 0.55, RNG(1))
 println(analyze(lat))
 ```
 
-`HP_LIB` 可覆盖库路径。Julia 的 `params(m).mean` 是 `(states, mix, dim)`；`state_mean(m, j)` 的 `j` 从 0 开始。
+`HP_LIB` 可覆盖库路径；`HP.lib_version()` 从 C 读取版本。Julia 的 `params(m).mean` 是 `(states, mix, dim)`；`state_mean(m, j)` 的 `j` 从 0 开始。
 
 ## 7. 退出码
 

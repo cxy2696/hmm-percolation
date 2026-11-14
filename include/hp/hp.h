@@ -3,6 +3,7 @@
 #define HP_HP_H
 
 #include "hp/core/status.h"
+#include "hp/core/version.h"
 #include "hp/core/memory.h"
 #include "hp/core/rng.h"
 #include "hp/core/stats.h"

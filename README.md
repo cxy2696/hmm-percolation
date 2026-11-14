@@ -84,7 +84,7 @@ bindings/python/   ctypes 绑定
 bindings/julia/    ccall 绑定
 examples/          不带金融假设的最小示例
 tests/             C/C++ 测试
-docs/              数学笔记、设计、用法、复现、结果
+docs/              数学笔记、设计、扩展、用法、复现、结果
 data/              合成数据
 out/               固定种子生成的参考产物
 ```
@@ -111,7 +111,7 @@ out/               固定种子生成的参考产物
 - 相关阈值图的单调性、因果滤波与回测时序；
 - 明确列出没有证明的结论：二维 $p_c=1/2$、ER/配置模型渐近定理、一般 HMM 可辨识性、EM 全局收敛、有限尺寸标度。
 
-如果只想看“代码里这些公式为什么对”，先读这篇；如果想知道“为什么这样设计”，读 [docs/design.md](docs/design.md)。
+如果只想看“代码里这些公式为什么对”，先读这篇；如果想知道“为什么这样设计”，读 [docs/design.md](docs/design.md)；想扩模型/策略，读 [docs/extending.md](docs/extending.md)。
 
 ## Python / Julia
 
@@ -129,7 +129,7 @@ julia --startup-file=no bindings/julia/examples/regime_demo.jl
 
 ## 维护
 
-- 版本：0.1.2，API 还可能变。模型文件格式有版本行；升级时不要静默改字段顺序。
+- 版本：0.1.3，API 还可能变。模型文件格式有版本行；升级时不要静默改字段顺序。
 - 数据：`data/` 全部由 `hp_synth` 生成，`data/README.md` 记录了种子和字段。
 - 产物：`out/` 是参考结果，不是必须提交的运行缓存；重新生成用 `scripts/reproduce.sh`。
 - 新结论：要么给证明，要么给文献引用，要么在文档里标成经验观察。三者不要混。

@@ -2,9 +2,9 @@
  *
  *   emission  b_j(x) = sum_k mix[j,k] * prod_d N(x_d; mean[j,k,d], var[j,k,d])
  *
- * Diagonal covariances are deliberate: market features are few and strongly
- * collinear (return / volatility), and a diagonal mixture stays positive
- * definite without shrinkage or Cholesky repairs.  The recursions are the same
+ * Diagonal covariances are deliberate: with few, strongly collinear features
+ * a diagonal mixture stays positive definite without shrinkage or Cholesky
+ * repairs.  The price is that it cannot model feature correlations.  The recursions are the same
  * as the full-covariance case; only the density changes.
  *
  * All inference is in the log domain.  x is row-major T x dim and must be

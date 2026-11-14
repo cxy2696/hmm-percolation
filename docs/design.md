@@ -144,7 +144,7 @@ b ...
 
 ### 5.4 版本与发布
 
-当前 0.1.0，API 还可能变。发布前：
+当前版本见 `include/hp/core/version.h`，API 还可能变。发布前：
 
 1. `make clean && make -j && make check`；
 2. `make python-test`，Julia 测试；
@@ -159,6 +159,8 @@ b ...
 - 不做 FK/Potts：它是理论背景，不是这套代码的组件。
 - 不接实时行情、不下单、不做组合优化。
 - 不声称解决了 HMM 可辨识性或 EM 全局收敛。
+
+扩展的具体落点见 [extending.md](extending.md)。
 
 ## 7. 如果继续做
 

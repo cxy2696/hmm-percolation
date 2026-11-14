@@ -4,6 +4,10 @@ include(joinpath(@__DIR__, "..", "HP.jl"))
 using .HP
 
 @testset "HP bindings" begin
+    @testset "version" begin
+        @test occursin(r"^\d+\.\d+\.\d+$", lib_version())
+    end
+
     @testset "uniform HMM" begin
         h = DiscreteHMM(2, 2)
         _, ll = forward(h, [0, 1, 0])

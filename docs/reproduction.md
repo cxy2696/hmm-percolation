@@ -153,7 +153,7 @@ julia --startup-file=no bindings/julia/test/runtests.jl
 julia --startup-file=no bindings/julia/examples/regime_demo.jl
 ```
 
-Python 11 项、Julia 21 项。Python 会复算 C++ 的 `model_train.txt` 对数似然（容差 2e-5）和最后一个窗口的 `theta_c`（容差 1e-10）。
+Python 12 项、Julia 22 项。Python 会复算 C++ 的 `model_train.txt` 对数似然（容差 2e-5）和最后一个窗口的 `theta_c`（容差 1e-10）。
 
 如果 juliaup 启动器报 `Could not create lockfile`，给它一个可写 HOME：
 
