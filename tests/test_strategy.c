@@ -100,6 +100,13 @@ HP_TEST(test_bt_opts_periods) {
     hp_bt_opts o;
     hp_bt_opts_default(&o);
     HP_CHECK_NEAR(o.periods_per_year, 252.0, 1e-15);
+    o.periods_per_year = 0.0;   /* old initialiser: fall back to daily */
+    double ret0[3] = {NAN, 0.01, 0.01};
+    double sig0[3] = {1, 1, 1};
+    hp_bt_metrics m0;
+    hp_bt_result r0;
+    HP_CHECK(hp_backtest(ret0, 3, sig0, &o, &r0, &m0) == HP_OK);
+    hp_bt_result_free(&r0);
     o.periods_per_year = 12.0;
     o.apply_costs = 0;
     double ret[3] = {NAN, 0.01, 0.01};

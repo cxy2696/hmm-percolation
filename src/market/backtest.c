@@ -32,8 +32,12 @@ hp_status hp_backtest(const double *asset_ret, size_t T, const double *signal,
         opts = &def;
     }
     if (!isfinite(opts->cost_bps) || opts->cost_bps < 0.0 ||
-        !isfinite(opts->periods_per_year) || !(opts->periods_per_year > 0.0))
+        !isfinite(opts->periods_per_year) || opts->periods_per_year < 0.0)
         return HP_ERR_INVALID;
+    /* 0 means an old source-level initialiser that predates the field. */
+    const double ppy_opt = opts->periods_per_year > 0.0
+                               ? opts->periods_per_year
+                               : 252.0;
     for (size_t t = 0; t < T; ++t)
         if (!isfinite(signal[t])) return HP_ERR_DOMAIN;
     for (size_t t = 1; t < T; ++t)
@@ -67,7 +71,7 @@ hp_status hp_backtest(const double *asset_ret, size_t T, const double *signal,
         double mean = hp_mean(sr, n);
         double sd = hp_sd(sr, n);
         double total = result->equity[T - 1] - 1.0;
-        const double ppy = opts->periods_per_year;
+        const double ppy = ppy_opt;
         double cagr = result->equity[T - 1] > 0.0
                           ? pow(result->equity[T - 1], ppy / (double)n) - 1.0
                           : -1.0;

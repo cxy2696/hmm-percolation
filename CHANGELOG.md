@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 — 2026-11-14
+
+- backtest: treat a zero `periods_per_year` as the old daily default (252) so
+  source code that zero-initialises `hp_bt_opts` keeps working.  The default
+  initialiser still writes 252.
+
 ## 0.2.0 — 2026-11-14
 
 - market: add causal signal helpers (`hp_signal_vol_target`,

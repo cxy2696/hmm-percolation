@@ -134,7 +134,7 @@ julia --startup-file=no bindings/julia/examples/regime_demo.jl
 
 ## 维护
 
-- 版本：0.2.0，API 还可能变。模型文件格式有版本行；升级时不要静默改字段顺序。
+- 版本：0.2.1，API 还可能变。模型文件格式有版本行；升级时不要静默改字段顺序。
 - 数据：`data/` 全部由 `hp_synth` 生成，`data/README.md` 记录了种子和字段。
 - 产物：`out/` 是参考结果，不是必须提交的运行缓存；重新生成用 `scripts/reproduce.sh`。
 - 新结论：要么给证明，要么给文献引用，要么在文档里标成经验观察。三者不要混。
