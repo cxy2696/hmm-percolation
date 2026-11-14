@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 — 2026-11-14
+
+- docs: fix an inline-math boundary in `docs/extending.md`; GitHub requires
+  whitespace before an opening `$` when it follows Chinese punctuation.
+
 ## 0.1.3 — 2026-11-14
 
 - core: add `hp_version()` / `HP_VERSION_*` so bindings do not duplicate the
