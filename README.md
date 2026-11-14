@@ -1,5 +1,7 @@
 # hmm-percolation
 
+[![ci](https://github.com/cxy2696/hmm-percolation/actions/workflows/ci.yml/badge.svg)](https://github.com/cxy2696/hmm-percolation/actions/workflows/ci.yml)
+
 用 C11 写的隐马尔可夫模型与渗流工具。核心库不依赖金融数据，也不依赖第三方库；`apps/hp_regime` 是一个用合成市场数据跑通的 regime 分析与回测示例。Python 和 Julia 通过共享库调用同一套 C 代码。
 
 我最初写它是为了回答两个具体问题：
