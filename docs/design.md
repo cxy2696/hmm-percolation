@@ -77,6 +77,14 @@ $$
 
 这仍然是树近似。 $T=1$ 且存在大量二度链时，环会让它高估 $S$。代码注释和 [mathematics.md](mathematics.md) 都写明了这一点；有限图的精确值要靠模拟，不靠这个函数。
 
+### 2.6 走步重估：每块只跑一次前向
+
+早先的走步实现，对每个样本外 t 都从 `start` 重新跑一次 `hp_ghmm_filter`，只为取最后一行。数学上没错，但每个 250 日 block 要做 250 次前缀滤波，复杂度是 O(block²·N²)。
+
+现在每个 block 只调用一次 `hp_ghmm_filter`，覆盖 `[start, end)`，再从返回矩阵里取 `block..end-1` 的行。模型、先验、观测顺序都没变，所以滤波概率和回测数字不变；变化的是复杂度，从每块 O(block²) 降到 O(block)。`tests/test_app.cpp` 的确定性/无前视测试仍按旧口径检查。
+
+这不是近似：`hp_ghmm_filter` 本身就在做同一套 log 域前向，只是不再重复计算前缀。
+
 ## 3. 渗流指标
 
 ### 3.1 `theta_half` 而不是 `theta_peak`

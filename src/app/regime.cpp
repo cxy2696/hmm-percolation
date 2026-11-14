@@ -227,18 +227,22 @@ RegimeResult run_regime(const hp_panel *panel, const RegimeConfig &cfg) {
         out.position_comb[t] = p * out.gate[t];
     }
 
-    /* Walk-forward refits and causal filtered probabilities. */
+    /* Walk-forward refits and causal filtered probabilities.
+     *
+     * Filter once through the history for each block, then update one step at
+     * a time.  Refiltering the whole prefix for every t is mathematically the
+     * same but quadratic in the block length. */
     size_t block = train_end;
-    std::vector<double> fbuf(n_days * n);
     while (block < T) {
         size_t end = std::min(T, block + std::max<size_t>(1, cfg.refit_every));
         hp_ghmm_report rep2{};
         GhmmPtr m = fit_model(z.data(), block - start, n, cfg.n_mix, opts, &rep2);
+        std::vector<double> fbuf((end - start) * n);
+        check(hp_ghmm_filter(m.get(), z.data(), end - start, fbuf.data(), nullptr),
+              "hp_ghmm_filter(walk-forward)");
         for (size_t t = block; t < end; ++t) {
-            size_t len = t - start + 1;
-            check(hp_ghmm_filter(m.get(), z.data(), len, fbuf.data(), nullptr),
-                  "hp_ghmm_filter(walk-forward)");
-            for (size_t j = 0; j < n; ++j) out.filtered[t * n + j] = fbuf[(len - 1) * n + j];
+            for (size_t j = 0; j < n; ++j)
+                out.filtered[t * n + j] = fbuf[(t - start) * n + j];
             double p = 0.0;
             for (size_t j = 0; j < n; ++j) p += out.filtered[t * n + j] * expo[j];
             out.position_hmm[t] = p;

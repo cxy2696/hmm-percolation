@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.2 — 2026-11-14
+
+- app: restructure walk-forward filtering so each refit block calls
+  `hp_ghmm_filter` once instead of refiltering the full prefix for every day.
+  The OOS probabilities and backtest numbers are unchanged; the block cost
+  drops from O(block²) to O(block).
+- docs: record the optimization and its equivalence argument in design.md.
+
 ## 0.2.1 — 2026-11-14
 
 - backtest: treat a zero `periods_per_year` as the old daily default (252) so
