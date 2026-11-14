@@ -154,7 +154,7 @@ $$
 
 ### 1.5 Baum-Welch 与 EM 的单调性
 
-固定观测 $o$，记 $\lambda=(\pi,A,B)$， $P_\lambda(q,o)$ 为联合概率， $P_\lambda(q\mid o)$ 为后验。定义完全数据对数似然
+固定观测 $o$，记 $\lambda=(\pi,A,B)$， $P_\lambda(q,o)$ 为联合概率， $P_\lambda(q\mid o)$ 为后验。EM 的一般形式见 [Dempster–Laird–Rubin](https://doi.org/10.1111/j.2517-6161.1977.tb01600.x)；下面把 HMM 的 E/M 步写全。定义完全数据对数似然
 
 $$
 L_c(\lambda;q,o)=\log\pi_{q_1}
@@ -293,7 +293,7 @@ $$
 
 有限图上的最大团簇尺寸、spanning 事件也单调不减。
 
-**证明.** 用同一组 $U_e$ 同时构造两个构型。 $U_e\le p\Rightarrow U_e\le q$，故边集包含。连通性是边集的单调性质：增加边不会拆散已有路径。最大团簇、spanning 同理。 $\square$
+**证明.** 用同一组 $U_e$ 同时构造两个构型。 $U_e\le p\Rightarrow U_e\le q$，故边集包含。连通性是边集的单调性质：增加边不会拆散已有路径。最大团簇、spanning 同理。标准处理见 [Grimmett](https://doi.org/10.1007/978-3-662-03981-6)。 $\square$
 
 固定原点并记 $\theta(p)=\theta_0(p)$。在 $\mathbb Z^d$ 这类可迁图上， $p_c=\inf\lbrace p:\theta(p)\gt 0\rbrace$ 与顶点选择无关，并且 $\theta$ 非降。代码里的 `hp_lattice` 与相关图扫描都依赖这条单调性。
 
@@ -374,13 +374,13 @@ $$
 S=1-e^{-cTS}.
 $$
 
-**定理 2.6（配置模型，引用）.** 在适当的有限二阶矩与正则条件下，配置模型的巨分量比例依概率收敛到上式给出的 $S$；当 $T\nu\gt 1$ 时 $S\gt 0$，当 $T\nu\lt 1$ 时 $S=0$。这是 Molloy–Reed 型结果，本笔记不证明。代码计算的是树近似值；在 $T=1$ 且存在大量二度链时，树近似会忽略环，可能高估 $S$，此时应把结果当作平均场诊断而不是有限图的精确值。
+**定理 2.6（配置模型，引用）.** 在适当的有限二阶矩与正则条件下，配置模型的巨分量比例依概率收敛到上式给出的 $S$；当 $T\nu\gt 1$ 时 $S\gt 0$，当 $T\nu\lt 1$ 时 $S=0$。这是 [Molloy–Reed](https://doi.org/10.1002/rsa.3240060204) 型结果，本笔记不证明。代码计算的是树近似值；在 $T=1$ 且存在大量二度链时，树近似会忽略环，可能高估 $S$，此时应把结果当作平均场诊断而不是有限图的精确值。
 
-**定理 2.7（ER 随机图，引用）.** 对 $G(n,p)$，若 $np\to c$，则 $c\gt 1$ 时最大团簇占比趋于 $S(c)$，其中 $S=1-e^{-cS}$； $c\lt 1$ 时最大团簇为 $o(n)$。这是 Erdős–Rényi 定理，代码用 `hp_perc_er_giant_theory` 计算其树近似解并用模拟核对。
+**定理 2.7（ER 随机图，引用）.** 对 $G(n,p)$，若 $np\to c$，则 $c\gt 1$ 时最大团簇占比趋于 $S(c)$，其中 $S=1-e^{-cS}$； $c\lt 1$ 时最大团簇为 $o(n)$。这是 [Erdős–Rényi](https://real.mtak.hu/200959/1/cut_MATKUTINT_5_1_-_2_1959_pp17_-_61.pdf) 定理，代码用 `hp_perc_er_giant_theory` 计算其树近似解并用模拟核对。
 
 ### 2.4 二维方格： $p_c=1/2$ 是定理，不是本文的证明
 
-2D 键渗流的 $p_c=1/2$ 来自自对偶性与临界点唯一性（Kesten）。完整证明需要 RSW 估计与对偶格点论证，篇幅远超这份笔记。代码只做数值标定：对 $L=32,64,128,256$ 用 spanning 概率 0.5 的交叉点外推，得到 0.4997；这是验证，不是证明。点渗流的 $p_c\approx0.5927$ 同样引用已知结果。
+2D 键渗流的 $p_c=1/2$ 来自自对偶性与临界点唯一性（[Kesten](https://doi.org/10.1007/BF01197577)）。完整证明需要 RSW 估计与对偶格点论证，篇幅远超这份笔记。代码只做数值标定：对 $L=32,64,128,256$ 用 spanning 概率 0.5 的交叉点外推，得到 0.4997；这是验证，不是证明。点渗流的 $p_c\approx0.5927$ 同样引用已知结果。
 
 ### 2.5 相关矩阵阈值图
 
@@ -428,7 +428,7 @@ $$
 为避免误读，明确列出：
 
 - 2D 键渗流 $p_c=1/2$、点渗流 $p_c\approx0.5927$：引用经典结果，代码只做数值验证。
-- ER/配置模型巨分量的渐近定理：引用 Erdős–Rényi、Molloy–Reed；代码计算树近似，不证明有限图收敛。
+- ER/配置模型巨分量的渐近定理：引用 [Erdős–Rényi](https://real.mtak.hu/200959/1/cut_MATKUTINT_5_1_-_2_1959_pp17_-_61.pdf)、[Molloy–Reed](https://doi.org/10.1002/rsa.3240060204)；代码计算树近似，不证明有限图收敛。
 - 一般 HMM 的可辨识性：只证明了标签置换与一个退化反例；没有证明“满足某条件即可恢复参数”。
 - EM 全局收敛、参数收敛速率：只证明似然单调；加下限后的实现不在定理的严格假设内。
 - 有限尺寸标度 $p_c(L)=p_c+aL^{-1/\nu}$ 与 $\nu=4/3$：作为拟合模型使用，未证明误差界。
@@ -436,14 +436,14 @@ $$
 - 回测收益、Sharpe、最大回撤：单一合成样本上的数值结果，不是期望业绩，也不是统计显著性的证明。
 - 状态图的中位阈值、渗流闸门的 80% 分位：工程启发式，没有最优性定理。
 
-这份清单会随代码一起维护；新增结论时，要么补证明，要么补引用，要么明确标成经验观察。
+这份清单会随代码一起维护；新增结论时，要么补证明，要么补引用，要么明确标成经验观察。参考文献链接于 2026-11-14 核对，优先使用 DOI 或出版方/机构存档。BibTeX 条目见 [references.bib](references.bib)。
 
 ---
 
 ## 参考文献
 
-- H. Kesten. The critical probability of bond percolation on the square lattice equals 1/2. *Communications in Mathematical Physics* 74 (1980), 41–59.
-- G. Grimmett. *Percolation*. 2nd ed., Springer, 1999.（耦合、一维、临界现象的标准参考）
-- P. Erdős, A. Rényi. On the evolution of random graphs. *Publications of the Mathematical Institute of the Hungarian Academy of Sciences* 5 (1960), 17–60.
-- M. Molloy, B. Reed. A critical point for random graphs with a given degree sequence. *Random Structures & Algorithms* 6 (1995), 161–180.
-- A. P. Dempster, N. M. Laird, D. B. Rubin. Maximum likelihood from incomplete data via the EM algorithm. *Journal of the Royal Statistical Society B* 39 (1977), 1–38.
+- H. Kesten. The critical probability of bond percolation on the square lattice equals 1/2. *Communications in Mathematical Physics* 74 (1980), 41–59. [DOI 10.1007/BF01197577](https://doi.org/10.1007/BF01197577).
+- G. Grimmett. *Percolation*. 2nd ed., Springer, 1999. [DOI 10.1007/978-3-662-03981-6](https://doi.org/10.1007/978-3-662-03981-6).（耦合、一维、临界现象的标准参考）
+- P. Erdős, A. Rényi. On the evolution of random graphs. *Publications of the Mathematical Institute of the Hungarian Academy of Sciences* 5 (1960), 17–61. [PDF](https://real.mtak.hu/200959/1/cut_MATKUTINT_5_1_-_2_1959_pp17_-_61.pdf) · [record](https://real.mtak.hu/200959/).
+- M. Molloy, B. Reed. A critical point for random graphs with a given degree sequence. *Random Structures & Algorithms* 6 (1995), 161–180. [DOI 10.1002/rsa.3240060204](https://doi.org/10.1002/rsa.3240060204).
+- A. P. Dempster, N. M. Laird, D. B. Rubin. Maximum likelihood from incomplete data via the EM algorithm. *Journal of the Royal Statistical Society B* 39 (1977), 1–22. [DOI 10.1111/j.2517-6161.1977.tb01600.x](https://doi.org/10.1111/j.2517-6161.1977.tb01600.x).

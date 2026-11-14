@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2 — 2026-11-14
+
+- docs: add DOI / publisher / repository links for every cited work, plus a
+  machine-readable `docs/references.bib`.
+- docs: fix the Dempster–Laird–Rubin page range (1–22) and the
+  Erdős–Rényi page range (17–61).
+- docs: render the formulas in README, design.md and results.md with the same
+  GitHub-compatible delimiters as mathematics.md.
+
 ## 0.1.1 — 2026-11-14
 
 - docs: switch to GitHub-compatible `$...$` / `$$...$$` math delimiters and add
