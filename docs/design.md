@@ -79,7 +79,7 @@ $$
 
 ## 3. 渗流指标
 
-### 3.1 `$theta_half$` 而不是 `$theta_peak$`
+### 3.1 `theta_half` 而不是 `theta_peak`
 
 相关图扫描时，`susceptibility` 的峰值在 $N=10$ 这种小图上经常落在平台或扫描边界。`theta_half` 是巨分量比例从 $\ge0.5$ 跌到 $\lt 0.5$ 的线性插值点，含义清楚：多数资产还在不在同一个连通块里。
 
